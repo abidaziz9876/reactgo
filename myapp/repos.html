@@ -1,0 +1,85 @@
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GitHub Repositories</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+
+        h1 {
+            color: #333;
+        }
+
+        label {
+            margin-right: 10px;
+        }
+
+        select {
+            margin-right: 10px;
+        }
+
+        button {
+            padding: 8px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        button:disabled {
+            background-color: #ddd;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+<body>
+    <h1>GitHub Repositories</h1>
+    
+    <!-- Dropdown list for repositories -->
+    <label for="repoDropdown">Select a Repository:</label>
+    <select id="repoDropdown" onchange="updateButtonState()">
+        {{range .Repos}}
+            <option value="{{.Name}}">{{.Name}}</option>
+        {{end}}
+    </select>
+    
+    <!-- Button to open the selected repository in VS Code -->
+    <button id="openVSCodeButton" onclick="openRepo()" disabled>Open in VS Code</button>
+
+    <script>
+        function updateButtonState() {
+            var dropdown = document.getElementById("repoDropdown");
+            var button = document.getElementById("openVSCodeButton");
+            
+            // Enable the button if a repository is selected
+            button.disabled = dropdown.value === "";
+        }
+
+        function openRepo() {
+            var repoName = document.getElementById("repoDropdown").value;
+
+            // Make a request to the server to get the GitHub username
+            fetch("/get-username")
+                .then(response => response.json())
+                .then(data => {
+                    // Construct the VS Code URL for opening the repository
+                    var githubUsername = data.username;
+                    var vscodeUrl = `http://vscode.dev/github/${githubUsername}/${repoName}`;
+
+                    // Open a new tab or window with the VS Code URL
+                    window.open(vscodeUrl, '_blank');
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+        }
+    </script>
+</body>
+</html>
